@@ -1,5 +1,6 @@
 use yew::prelude::*;
 
+#[derive(Debug)]
 pub struct Tile {
     pub filename: String,
     pub empty: bool,

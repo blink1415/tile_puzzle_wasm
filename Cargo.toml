@@ -9,3 +9,5 @@ edition = "2021"
 yew = "^0.19.3"
 rand = "^0.8"
 getrandom = { version = "0.2", features = ["js"] }
+wasm-logger = "0.2.0"
+log = "0.4.14"
