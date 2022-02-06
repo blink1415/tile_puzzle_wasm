@@ -15,7 +15,8 @@ pub struct App {
     width: u8,
     height: u8,
     solved: bool,
-    tile_size: u8
+    tile_size: u32,
+    move_count: u32
 }
 
 impl Component for App {
@@ -31,10 +32,11 @@ impl Component for App {
             width: width,
             height: height,
             solved: false,
-            tile_size: 50
+            tile_size: 100,
+            move_count: 0
         };
 
-        let order = App::random_legal_order(width, height);
+        let order = App::random_legal_order(width, height, false);
 
         let max_value = order.len();
         for i in order {
@@ -62,7 +64,10 @@ impl Component for App {
                 // re-render for it to appear on the page
                 true
             }
-            Msg::Restart => true,
+            Msg::Restart => {
+                self.restart();
+                true
+            },
         }
     }
 
@@ -88,6 +93,12 @@ impl Component for App {
                         )
                     }
                 </div>
+                <div id="stats">
+                <p> {self.move_count} </p>
+                </div>
+                <div id="restart">
+                    <button onclick={link.callback(|_| Msg::Restart)} >{ "Restart" }</button>
+                </div>
             </div>
         }
     }
@@ -96,13 +107,19 @@ impl Component for App {
 impl App {
 
     fn style(&self) -> Html {
+        let visible = match self.solved {
+            true => "visible",
+            false => "hidden",
+        };
+
         html! {
             <>
             <style>
-            {format!("
+            {
+                format!("
                 .flexbox {{
-                    display: flex;
-                    width: {parent_width}px;
+                    display: grid;
+                    grid-template-columns: repeat({parent_width}, {child_width}px);
                 }}
 
                 .parent {{
@@ -116,35 +133,47 @@ impl App {
                     flex: 0 0 50px;
                 }}
 
+                #tile {{
+                    width: 100%;
+                    height: 100%;
+                }}
+
+                #restart {{
+                    visibility: {visibility};
+                }}
+
             ", 
-            parent_width = self.width * self.tile_size,
-            parent_height = self.width * self.tile_size,
+            parent_width = self.width,
+            parent_height = self.height as u32 * self.tile_size,
             child_width = self.tile_size,
             child_height = self.tile_size,
+            visibility = visible,
             )}
             </style>
             </>
         }
     }
 
-    fn random_legal_order(width: u8, height: u8) -> Vec<u8> {
+    fn random_legal_order(width: u8, height: u8, real: bool) -> Vec<u8> {
         let mut order: Vec<u8> = Vec::new();
 
         for i in 1..(width * height + 1) {
             order.push(i);
         }
 
+        if real {
         let mut rng = thread_rng();
         order.shuffle(&mut rng);
 
-        while !App::is_legal_order(&order, width) && !App::is_solved(&order) {
+        while !App::is_legal_order(&order, width, height) && !App::is_solved(&order) {
             order.shuffle(&mut rng);
         }
+    }
 
         order
     }
 
-    fn is_legal_order(order: &Vec<u8>, width: u8) -> bool {
+    fn is_legal_order(order: &Vec<u8>, width: u8, height: u8) -> bool {
         let mut inversions = 0;
 
         let mut blank_index = 0;
@@ -161,14 +190,16 @@ impl App {
             }
         }
 
-        let blank_layer = (blank_index / 4) + 1;
+        let blank_layer = height - ((blank_index / width) + 1);
+
+        log::info!("Inversions {} | Blank layer {}", inversions, blank_layer);
 
         return (inversions % 2 == 0) != (blank_layer % 2 == 0);
     }
 
     fn is_solved(order: &Vec<u8>) -> bool {
         for (i, value) in order.iter().enumerate() {
-            if &(i as u8) != value {
+            if &(i as u8 + 1) != value {
                 return false;
             }
         }
@@ -237,6 +268,7 @@ impl App {
         let empty = App::empty_index(self);
 
         self.board.swap(empty as usize, index_clicked as usize);
+        self.move_count += 1;
     }
 
     fn empty_index(&self) -> u8 {
@@ -246,5 +278,18 @@ impl App {
             }
         }
         return 0;
+    }
+
+    fn restart(&mut self) {
+        let new_order = App::random_legal_order(self.width, self.height, true);
+
+        let max_value = new_order.len() - 1;
+
+        for i in 0..max_value {
+            self.board[i] = Tile::new(new_order[i], i as u8 == max_value as u8)
+        }
+
+        self.solved = false;
+        self.move_count = 0;
     }
 }
