@@ -19,25 +19,8 @@ impl Component for App {
     type Properties = ();
 
     fn create(_ctx: &Context<Self>) -> Self {
-        let width = 4;
-        let height = 4;
-
-        let order = Game::random_legal_order(width, height, false);
-        let mut board: Vec<Tile> = Vec::new();
-
-        let max_value = order.len();
-        for i in order {
-            board.push(Tile::new(i, i == max_value as u8));
-        }
-
         App {
-            game: Game {
-                board: board,
-                width: width,
-                height: height,
-                solved: false,
-                move_count: 0
-            },
+            game: Game::new(4, 4),
 
             tile_size: 100,
         }
@@ -47,8 +30,7 @@ impl Component for App {
         match msg {
             Msg::ClickTile(index) => {
                 self.game.click_tile(index)
-            }
-
+            },
             Msg::Restart => {
                 self.game.restart()
             },

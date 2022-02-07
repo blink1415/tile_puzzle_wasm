@@ -13,6 +13,59 @@ pub struct Game {
 }
 
 impl Game {
+
+    // Game actions
+
+    pub fn click_tile(&mut self, index: u8) -> bool {
+        log::info!("Clicked {:?}", self.board[index as usize]);
+
+        if self.is_legal_move(index) && !self.solved {
+            self.make_move(index);
+
+            let order: Vec<u8> = self.board.iter().map(|tile| tile.id).clone().collect();
+            self.solved = Game::is_solved(&order);
+        }
+
+        log::info!("Is legal move: {}", self.is_legal_move(index));
+
+        true
+    }
+
+    pub fn restart(&mut self) -> bool {
+        let new_order = Game::random_legal_order(self.width, self.height, true);
+
+        let max_value = new_order.len() - 1;
+
+        for i in 0..max_value {
+            self.board[i] = Tile::new(new_order[i], i as u8 == max_value as u8)
+        }
+
+        self.solved = false;
+        self.move_count = 0;
+
+        true
+    }
+
+    // Initialize
+
+    pub fn new(width: u8, height: u8) -> Game {
+        let order = Game::random_legal_order(width, height, false);
+        let mut board: Vec<Tile> = Vec::new();
+
+        let max_value = order.len();
+        for i in order {
+            board.push(Tile::new(i, i == max_value as u8));
+        }
+
+        Game {
+            board,
+            width,
+            height,
+            solved: false,
+            move_count: 0
+        }
+    }
+
     pub fn random_legal_order(width: u8, height: u8, real: bool) -> Vec<u8> {
         let mut order: Vec<u8> = Vec::new();
 
@@ -137,35 +190,5 @@ impl Game {
             }
         }
         return 0;
-    }
-
-    pub fn click_tile(&mut self, index: u8) -> bool {
-        log::info!("Clicked {:?}", self.board[index as usize]);
-
-        if self.is_legal_move(index) && !self.solved {
-            self.make_move(index);
-
-            let order: Vec<u8> = self.board.iter().map(|tile| tile.id).clone().collect();
-            self.solved = Game::is_solved(&order);
-        }
-
-        log::info!("Is legal move: {}", self.is_legal_move(index));
-
-        true
-    }
-
-    pub fn restart(&mut self) -> bool {
-        let new_order = Game::random_legal_order(self.width, self.height, true);
-
-        let max_value = new_order.len() - 1;
-
-        for i in 0..max_value {
-            self.board[i] = Tile::new(new_order[i], i as u8 == max_value as u8)
-        }
-
-        self.solved = false;
-        self.move_count = 0;
-
-        true
     }
 }

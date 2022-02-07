@@ -21,8 +21,8 @@ impl Tile {
     pub fn new(id: u8, empty: bool) -> Tile {
         Tile {
             filename: format!("assets/{}.png", id),
-            empty: empty,
-            id: id,
+            empty,
+            id,
         }
     }
 }
