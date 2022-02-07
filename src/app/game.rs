@@ -10,6 +10,7 @@ pub struct Game {
     pub height: u8,
     pub solved: bool,
     pub move_count: u32,
+    pub high_score: u32,
 }
 
 impl Game {
@@ -24,6 +25,10 @@ impl Game {
 
             let order: Vec<u8> = self.board.iter().map(|tile| tile.id).clone().collect();
             self.solved = Game::is_solved(&order);
+
+            if self.solved {
+                self.high_score = Ord::max(self.move_count, self.high_score);
+            }
         }
 
         log::info!("Is legal move: {}", self.is_legal_move(index));
@@ -32,7 +37,7 @@ impl Game {
     }
 
     pub fn restart(&mut self) -> bool {
-        let new_order = Game::random_legal_order(self.width, self.height, true);
+        let new_order = Game::random_legal_order(self.width, self.height);
 
         let max_value = new_order.len();
 
@@ -49,11 +54,9 @@ impl Game {
     // Initialize
 
     pub fn new(width: u8, height: u8) -> Game {
-        let order = Game::random_legal_order(width, height, false);
-        let mut board: Vec<Tile> = Vec::new();
-
-        let max_value = order.len();
-        for i in order {
+        let mut board = Vec::new();
+        let max_value = width * height + 1;
+        for i in 1..max_value {
             board.push(Tile::new(i, i == max_value as u8));
         }
 
@@ -61,26 +64,25 @@ impl Game {
             board,
             width,
             height,
-            solved: false,
-            move_count: 0
+            solved: true,
+            move_count: 0,
+            high_score: 0
         }
     }
 
-    pub fn random_legal_order(width: u8, height: u8, real: bool) -> Vec<u8> {
+    pub fn random_legal_order(width: u8, height: u8) -> Vec<u8> {
         let mut order: Vec<u8> = Vec::new();
 
         for i in 1..(width * height + 1) {
             order.push(i);
         }
 
-        if real {
         let mut rng = thread_rng();
         order.shuffle(&mut rng);
 
         while !Game::is_legal_order(&order, width, height) && !Game::is_solved(&order) {
             order.shuffle(&mut rng);
         }
-    }
 
         order
     }
@@ -123,57 +125,37 @@ impl Game {
     fn is_legal_move(&self, index_clicked: u8) -> bool {
         let empty_pos = self.empty_index();
 
+        // Check same square
         if index_clicked == empty_pos {
             return false;
         }
 
-        // TODO: Fix moves wrapping lines
-
+        // Check left
         if index_clicked != 0 {
-            let target = self.board.get(index_clicked as usize - 1);
-            match target {
-                Some(tile) => {
-                    if tile.empty {
-                        if index_clicked % self.width == 0 && empty_pos == index_clicked + 1 {
-                            return false;
-                        }
-                        return true;
-                    }
-                }
-                None => {}
-            }
-        }
-
-        let target = self.board.get(index_clicked as usize + 1);
-        match target {
-            Some(tile) => {
-                if tile.empty {
+            if index_clicked - 1 == empty_pos {
+                if index_clicked / self.width == empty_pos / self.width {
                     return true;
                 }
             }
-            None => {}
         }
 
+        // Check right
+        if index_clicked + 1 == empty_pos {
+                if index_clicked / self.width == empty_pos / self.width {
+                return true;
+            }
+        }
+
+        // Check up
         if index_clicked >= self.width {
-            let target = self.board.get(index_clicked as usize - self.width as usize);
-            match target {
-                Some(tile) => {
-                    if tile.empty {
-                        return true;
-                    }
-                }
-                None => {}
+            if index_clicked - self.width == empty_pos {
+                return true;
             }
         }
 
-        let target = self.board.get(index_clicked as usize + self.width as usize);
-        match target {
-            Some(tile) => {
-                if tile.empty {
-                    return true;
-                }
-            }
-            None => {}
+        // Check down
+        if index_clicked + self.width == empty_pos {
+            return true;
         }
 
         false

@@ -61,7 +61,7 @@ impl Component for App {
                     }
                 </div>
                 <div id="restart">
-                    <button onclick={link.callback(|_| Msg::Restart)} >{ "Restart" }</button>
+                    <button onclick={link.callback(|_| Msg::Restart)} >{ if self.game.high_score == 0 {"Start"} else {"Restart"} }</button>
                 </div>
             </div>
         }
