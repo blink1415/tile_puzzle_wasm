@@ -11,7 +11,7 @@ impl Tile {
     pub fn view(&self) -> Html {
         html! {
             <>
-                <img src = { self.filename.clone() } id = "tile" />
+                <img src = { self.filename.clone() } id = "tile" class = "rounded"/>
                 //<p>{self.empty}</p>
                 //<p>{self.id}</p>
             </>

@@ -2,7 +2,6 @@ use yew::prelude::*;
 
 mod game;
 use game::*;
-use game::tile::Tile;
 
 pub enum Msg {
     ClickTile(u8),
@@ -41,9 +40,12 @@ impl Component for App {
         // This gives us a component's "`Scope`" which allows us to send messages, etc to the component.
         let link = ctx.link();
         html! {
-            <div class = "board">
+            <div class = "board container">
             {self.style()}
             <h1>{"15 puzzle"}</h1>
+            <div id="stats">
+            <p><strong>{"Move count: "}</strong>{self.game.move_count} </p>
+            </div>
                 <div class = "parent flexbox">
                     {
                         for self.game.board.iter().enumerate().map(|(i, tile)|
@@ -57,9 +59,6 @@ impl Component for App {
                         }
                         )
                     }
-                </div>
-                <div id="stats">
-                <p> {self.game.move_count} </p>
                 </div>
                 <div id="restart">
                     <button onclick={link.callback(|_| Msg::Restart)} >{ "Restart" }</button>

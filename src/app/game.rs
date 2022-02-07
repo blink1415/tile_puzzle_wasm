@@ -34,10 +34,10 @@ impl Game {
     pub fn restart(&mut self) -> bool {
         let new_order = Game::random_legal_order(self.width, self.height, true);
 
-        let max_value = new_order.len() - 1;
+        let max_value = new_order.len();
 
         for i in 0..max_value {
-            self.board[i] = Tile::new(new_order[i], i as u8 == max_value as u8)
+            self.board[i] = Tile::new(new_order[i], new_order[i] as usize == max_value);
         }
 
         self.solved = false;
@@ -134,6 +134,9 @@ impl Game {
             match target {
                 Some(tile) => {
                     if tile.empty {
+                        if index_clicked % self.width == 0 && empty_pos == index_clicked + 1 {
+                            return false;
+                        }
                         return true;
                     }
                 }
