@@ -25,7 +25,3 @@ trunk serve
 ```
 
 You can then find the app at http://localhost:8080/
-
-## License
-
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
