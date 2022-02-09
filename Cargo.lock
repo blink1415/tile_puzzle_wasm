@@ -376,7 +376,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "tile_pussle_wasm"
+name = "tile_puzzle_wasm"
 version = "0.1.0"
 dependencies = [
  "getrandom",

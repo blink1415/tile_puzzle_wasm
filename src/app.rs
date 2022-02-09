@@ -41,27 +41,34 @@ impl Component for App {
         let link = ctx.link();
         html! {
             <div class = "board container">
-            {self.style()}
-            <h1>{"15 puzzle"}</h1>
-            <div id="stats">
-            <p><strong>{"Move count: "}</strong>{self.game.move_count} </p>
-            </div>
-                <div class = "parent flexbox">
-                    {
-                        for self.game.board.iter().enumerate().map(|(i, tile)|
-                        html! {
-                            <a class = "child" onclick={
-                                let index = i.clone();
-                                link.callback(move |_| Msg::ClickTile(index as u8))
-                            }>
-                            {tile.view()}
-                            </a>
-                        }
-                        )
-                    }
+                {self.style()}
+                <h1>{"15 puzzle"}</h1>
+
+                <div class="row">
+                    <div id="stats col-sm-3">
+                        <p><strong>{"Move count: "}</strong>{self.game.move_count} </p>
+                        <p><strong>{"High score: "}</strong>{self.game.high_score} </p>
+                    </div>
+                    <div id="restart col-sm-2">
+                        <button class="btn btn-primary" onclick={link.callback(|_| Msg::Restart)} >{ if self.game.high_score == 0 {"Start"} else {"Restart"} }</button>
+                    </div>
                 </div>
-                <div id="restart">
-                    <button onclick={link.callback(|_| Msg::Restart)} >{ if self.game.high_score == 0 {"Start"} else {"Restart"} }</button>
+
+                <div class="row">
+                    <div class = "parent flexbox">
+                        {
+                            for self.game.board.iter().enumerate().map(|(i, tile)|
+                            html! {
+                                <a class = "child" onclick={
+                                    let index = i.clone();
+                                    link.callback(move |_| Msg::ClickTile(index as u8))
+                                }>
+                                {tile.view()}
+                                </a>
+                            }
+                            )
+                        }
+                    </div>
                 </div>
             </div>
         }
@@ -95,22 +102,58 @@ impl App {
                     height: {child_height}px;
                     display: inline-block;
                     flex: 0 0 50px;
+                    text-decoration: none;
                 }}
 
                 #tile {{
                     width: 100%;
                     height: 100%;
+                    outline: 1px solid #5488BA;
                 }}
 
                 #restart {{
                     visibility: {visibility};
                 }}
 
+                .empty {{
+                    background-color: black;
+                }}
+
+                .full {{
+                    background-color: #54BAB9;
+                    color: #FBF8F1;
+                    text-align: center;
+                    vertical-align: middle;
+                    line-height: {child_height}px;
+                    font-size: {font_size}px;
+                    text-decoration: none;
+                }}
+
+                body {{
+                    background-color: #F7ECDE;
+                }}
+
+                .btn-primary {{
+                    background-color: #3F9C9B;
+                    outline: none;
+                }}
+
+                .btn-primary:hover {{
+                    background-color: #3F9C6D;
+                    outline: none;
+                }}
+
+                #tile:hover {{
+                    outline: 2px solid #BA5455;
+                    z-index: 9999;
+                    position: relative;
+                }}
             ", 
             parent_width = self.game.width,
             parent_height = self.game.height as u32 * self.tile_size,
             child_width = self.tile_size,
             child_height = self.tile_size,
+            font_size = self.tile_size as f32 * 0.75,
             visibility = visible,
             )}
             </style>

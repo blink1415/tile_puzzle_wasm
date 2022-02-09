@@ -1,10 +1,8 @@
 [package]
-name = "tile_pussle_wasm"
+name = "tile_puzzle_wasm"
 version = "0.1.0"
 edition = "2021"
 license-file = "LICENSE"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 yew = "^0.19.3"

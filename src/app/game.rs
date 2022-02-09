@@ -27,7 +27,12 @@ impl Game {
             self.solved = Game::is_solved(&order);
 
             if self.solved {
-                self.high_score = Ord::max(self.move_count, self.high_score);
+                if self.high_score == 0 {
+                    self.high_score = self.move_count;
+                }
+                else {
+                    self.high_score = Ord::min(self.move_count, self.high_score);
+                }
             }
         }
 
@@ -57,7 +62,7 @@ impl Game {
         let mut board = Vec::new();
         let max_value = width * height + 1;
         for i in 1..max_value {
-            board.push(Tile::new(i, i == max_value as u8));
+            board.push(Tile::new(i, i == max_value - 1 as u8));
         }
 
         Game {
@@ -104,7 +109,7 @@ impl Game {
             }
         }
 
-        let blank_layer = height - ((blank_index / width) + 1);
+        let blank_layer = height - blank_index / width;
 
         log::info!("Inversions {} | Blank layer {}", inversions, blank_layer);
 
