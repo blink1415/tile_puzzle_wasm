@@ -4,7 +4,7 @@
 ## Description
 
 A [15-puzzle](https://en.wikipedia.org/wiki/15_puzzle) game made in rust with the [Yew framework](https://yew.rs/) as a frontend.
-It's possible to use dimensions that aren't 4x4, but I haven't added the images to support that, and the function that checks if a board state is solvable is written for 4x4 boards.
+It's possible to use dimensions that aren't 4x4, but the function that checks if a board state is solvable is written for 4x4 boards, so it might not work for all layouts.
 
 ## Installing
 
