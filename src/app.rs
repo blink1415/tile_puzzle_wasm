@@ -45,15 +45,22 @@ impl Component for App {
                 <h1>{"15 puzzle"}</h1>
 
                 <div class="row">
-                    <div id="stats col-sm-3">
-                        <p><strong>{"Move count: "}</strong>{self.game.move_count} </p>
-                        <p><strong>{"High score: "}</strong>{self.game.high_score} </p>
+                    <div id="stats" class="col-sm-3">
+                        <table>
+                            <tr>
+                                <td>{"Move count"}</td>
+                                <td>{self.game.move_count}</td>
+                            </tr>
+                            <tr>
+                                <td>{"High score"}</td>
+                                <td>{self.game.high_score}</td>
+                            </tr>
+                        </table>
                     </div>
-                    <div id="restart col-sm-2">
+                    <div id="restart" class="col-sm-2">
                         <button class="btn btn-primary" onclick={link.callback(|_| Msg::Restart)} >{ if self.game.high_score == 0 {"Start"} else {"Restart"} }</button>
                     </div>
                 </div>
-
                 <div class="row">
                     <div class = "parent flexbox">
                         {
